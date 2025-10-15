@@ -127,10 +127,6 @@ def read_asc(path: str) -> List[AscFrame]:
                     out.append(fr)
     out.sort(key=lambda x: x.t_ms)
     return out
-'''
-def filter_target_frames(frames: List[AscFrame]):
-    return [fr for fr in frames if fr.can_id in TARGET_ECU_IDS]
-'''
 
 frames = read_asc("logs/log.asc")
 for fr in frames:
