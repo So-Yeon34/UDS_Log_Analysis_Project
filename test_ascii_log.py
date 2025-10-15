@@ -1,5 +1,3 @@
-import os
-
 def test_read_log_file():
     with open("logs/log.asc", "r", encoding="utf-8") as f:
         for line in f:
