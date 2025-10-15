@@ -7,7 +7,18 @@ SKIP_PREFIXES = {
     "Begin", "End", "Warning", "ERROR", "Error",
 }
 
+# CAN ID pattern: matches 3 to 8 hexadecimal characters.
+# - Standard ID (11-bit) usually fits within 3 hex digits (e.g., 7DF, 7E8)
+# - Extended ID (29-bit) usually fits within 8 hex digits (e.g., 18DAF110)
+# Therefore, allowing 3–8 characters is a reasonable range for CAN identifiers.
 HEX_ID_RE = re.compile(r"^[0-9A-Fa-f]{3,8}$")
+
+# ---------------------------
+# CONFIGURATION (User editable)
+# ---------------------------
+# Target ECUs: Diagnostic response IDs you want to analyze
+# (You can change this list anytime without touching the rest of the code)
+TARGET_ECU_IDS = {"7E8","7DF"}
 
 @dataclass
 class AscFrame:
@@ -78,7 +89,7 @@ def parse_asc_line(line: str) -> Optional[AscFrame]:
     if dlc is None:
         # In case that dlc comes out without 'd'
         for i in range(4, min(len(parts), 10)):
-            if _is_init(parts[i]):
+            if _is_int(parts[i]):
                 candidate = int(parts[i])
                 if 0<= candidate <=8:
                     dlc = candidate
@@ -112,9 +123,14 @@ def read_asc(path: str) -> List[AscFrame]:
         for line in f:
             fr = parse_asc_line(line)
             if fr:
-                out.append(fr)
+                if fr.can_id in TARGET_ECU_IDS:
+                    out.append(fr)
     out.sort(key=lambda x: x.t_ms)
     return out
+'''
+def filter_target_frames(frames: List[AscFrame]):
+    return [fr for fr in frames if fr.can_id in TARGET_ECU_IDS]
+'''
 
 frames = read_asc("logs/log.asc")
 for fr in frames:
