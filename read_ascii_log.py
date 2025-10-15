@@ -1,6 +1,44 @@
 from dataclasses import dataclass
 from typing import Optional, List
 import re
+from typing import Optional
+
+# -------------------------------------------------------------------------
+# About Optional[T]
+#
+# Optional[T] means "the variable can be either type T or None".
+#
+# It’s just a shorthand for Union[T, None].
+# For example:
+#   Optional[str]  ->  str or None
+#   Optional[int]  ->  int or None
+#   Optional[AscFrame]  ->  AscFrame object or None
+#
+# Common use cases:
+#   1. When a function might return a value or None:
+#        def find_user(name: str) -> Optional[str]:
+#            if name == "Sonia":
+#                return "Hello Sonia!"
+#            else:
+#                return None
+#
+#   2. When a class attribute might be missing:
+#        @dataclass
+#        class AscFrame:
+#            note: Optional[str] = None
+#
+#   3. When a function argument is optional:
+#        def greet(name: Optional[str]):
+#            if name:
+#                print(f"Hello, {name}")
+#            else:
+#                print("Hello, Stranger!")
+#
+# In short:
+#   Optional[T] == Union[T, None]
+#   → The variable or return value can be of type T or can be None.
+# -------------------------------------------------------------------------
+
 
 SKIP_PREFIXES = {
     "//", "date", "Date", "base", "Base",
