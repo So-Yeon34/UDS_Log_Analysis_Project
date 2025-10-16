@@ -77,7 +77,8 @@ def _find_can_id(parts: List[str]) -> Optional[str]:
     # It is normally contained in parts[2], but search for Hex format
     for p in parts[:8]: # Check only for front side data
         if HEX_ID_RE.match(p):
-            return p.upper()
+            if p in TARGET_ECU_IDS:
+                return p.upper()
     return None
 
 def parse_asc_line(line: str) -> Optional[AscFrame]:
@@ -161,8 +162,7 @@ def read_asc(path: str) -> List[AscFrame]:
         for line in f:
             fr = parse_asc_line(line)
             if fr:
-                if fr.can_id in TARGET_ECU_IDS:
-                    out.append(fr)
+                out.append(fr)
     out.sort(key=lambda x: x.t_ms)
     return out
 
