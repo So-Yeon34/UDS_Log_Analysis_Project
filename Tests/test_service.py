@@ -8,10 +8,11 @@ def _load_frames():
     print(f"[_load_frame] using log: {log_path}")
 
     if not log_path.exists():
-        pytest.fail(f"Log file doesn't exist in the directory: {log_path}")
+        pytest.exit(f"Log file doesn't exist in the directory: {log_path}")
 
     data = read_asc(str(log_path))
-    assert data, "Parsing frame is empty (Empty file or skipped)"
+    if not data:
+        pytest.exit("Parsing frame is empty (Empty file or skipped)")
     return data
 
 # (Step1) Check Session Control $10
@@ -32,12 +33,14 @@ def test_check_session_control(_load_frames):
         elif second_byte == "50" and third_byte == "03" and fr.can_id.upper() == "7E8":
             res.append(fr)
 
-    assert req, "There is no request for session control (0x10)"
-    assert res, "There is no positive response for session control (0x50)"
+    if not req:
+        pytest.fail("There is no request for session control (0x10)")
+    if not res:
+        pytest.fail("There is no positive response for session control (0x50)")
 
     for request in req:
         resp_found = any(
-            (respond.t_ms > request.t_ms) and ((respond.t_ms - request.t_ms) <= 300)
+            (respond.t_ms > request.t_ms) and ((respond.t_ms - request.t_ms) <= 30)
             for respond in res
         )
         assert resp_found, f"There is no response within 300ms after {request.t_ms}ms"
